@@ -1,6 +1,7 @@
 # Task → provider:model priority lists.
 # No credentials here — safe to commit.
 # Credentials come from /root/.env via KICONNECT_API_KEY / AZURE_OPENAI_API_KEY.
+# Updated weekly by scripts/refresh_routing.py (Mon 06:30 UTC).
 
 providers:
   kiconnect:
@@ -11,10 +12,13 @@ providers:
     api_key_env: AZURE_OPENAI_API_KEY
     api_version: "2025-01-01-preview"
 
-# Task-specific model priority lists (first = preferred, fallback in order).
-# provider:model  — or just  model  for the default provider (kiconnect).
+# First entry = preferred; fallback in order on 429/503.
 task_routing:
   cold_email:
+    - kiconnect:gpt-oss-120b
+    - kiconnect:gpt-5.2
+    - azure:gpt-4o
+  blog:
     - kiconnect:gpt-oss-120b
     - kiconnect:gpt-5.2
     - azure:gpt-4o
@@ -29,14 +33,16 @@ task_routing:
   classify:
     - kiconnect:gpt-5.4-mini
     - kiconnect:mistral-small-4-119b-2603
+  cv_tailor:
+    - kiconnect:gpt-oss-120b
+    - kiconnect:gpt-5.2
+    - azure:gpt-4o
   default:
     - kiconnect:gpt-oss-120b
     - azure:gpt-4o
     - kiconnect:gpt-5.2
     - kiconnect:mistral-small-4-119b-2603
 
-# Model capability ranking (higher = stronger / preferred for quality tasks).
-# kiconnect-refresh updates availability; this file controls quality order.
 model_ranks:
   kiconnect:gpt-oss-120b: 100
   kiconnect:gpt-5.2: 90
