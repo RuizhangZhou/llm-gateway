@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh llm-gateway routing table from KIconnect model list
+After=kiconnect-refresh.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/llm-gateway
+ExecStart=/root/.local/bin/uv run python scripts/refresh_routing.py
+Environment=HOME=/root
+StandardOutput=append:/root/llm-gateway/logs/refresh.log
+StandardError=append:/root/llm-gateway/logs/refresh.log
+TimeoutStartSec=60

@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh llm-gateway routing table every Monday at 06:30 UTC (after kiconnect-refresh)
+
+[Timer]
+OnCalendar=Mon *-*-* 06:30:00
+RandomizedDelaySec=120
+Persistent=true
+Unit=llm-gateway-refresh.service
+
+[Install]
+WantedBy=timers.target

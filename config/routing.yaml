@@ -1,0 +1,45 @@
+# Task → provider:model priority lists.
+# No credentials here — safe to commit.
+# Credentials come from /root/.env via KICONNECT_API_KEY / AZURE_OPENAI_API_KEY.
+
+providers:
+  kiconnect:
+    base_url: https://chat.kiconnect.nrw/api/v1
+    api_key_env: KICONNECT_API_KEY
+  azure:
+    base_url_env: AZURE_OPENAI_BASE_URL
+    api_key_env: AZURE_OPENAI_API_KEY
+    api_version: "2025-01-01-preview"
+
+# Task-specific model priority lists (first = preferred, fallback in order).
+# provider:model  — or just  model  for the default provider (kiconnect).
+task_routing:
+  cold_email:
+    - kiconnect:gpt-oss-120b
+    - kiconnect:gpt-5.2
+    - azure:gpt-4o
+  code:
+    - kiconnect:gpt-5.2
+    - azure:gpt-4o
+    - kiconnect:gpt-oss-120b
+  summarize:
+    - kiconnect:mistral-small-4-119b-2603
+    - kiconnect:gpt-5.4-mini
+    - kiconnect:gpt-oss-120b
+  classify:
+    - kiconnect:gpt-5.4-mini
+    - kiconnect:mistral-small-4-119b-2603
+  default:
+    - kiconnect:gpt-oss-120b
+    - azure:gpt-4o
+    - kiconnect:gpt-5.2
+    - kiconnect:mistral-small-4-119b-2603
+
+# Model capability ranking (higher = stronger / preferred for quality tasks).
+# kiconnect-refresh updates availability; this file controls quality order.
+model_ranks:
+  kiconnect:gpt-oss-120b: 100
+  kiconnect:gpt-5.2: 90
+  azure:gpt-4o: 85
+  kiconnect:gpt-5.4-mini: 70
+  kiconnect:mistral-small-4-119b-2603: 60
