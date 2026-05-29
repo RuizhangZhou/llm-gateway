@@ -12,9 +12,8 @@ from llm_gateway._router import resolve_candidates
 _RETRYABLE = {429, 503, 529}
 
 
-def _azure_api_version() -> str:
-    cfg = get_config()
-    return cfg["providers"].get("azure", {}).get("api_version", "2025-01-01-preview")
+def _azure_cfg() -> dict:
+    return get_config()["providers"].get("azure", {})
 
 
 def _call(
@@ -28,15 +27,44 @@ def _call(
     if not api_key:
         raise ValueError(f"No API key for provider '{provider}'")
 
-    params = {"api-version": _azure_api_version()} if provider == "azure" else {}
+    if provider == "azure":
+        acfg = _azure_cfg()
+        api_version = acfg.get("api_version", "2025-01-01-preview")
+        if acfg.get("deployments_in_path"):
+            # openai.azure.com: /openai/deployments/{deployment}/chat/completions
+            # Newer models (gpt-5.x) use max_completion_tokens instead of max_tokens
+            url = f"{base_url}/openai/deployments/{model}/chat/completions"
+            adjusted = dict(extra)
+            if "max_tokens" in adjusted:
+                adjusted["max_completion_tokens"] = adjusted.pop("max_tokens")
+            body: dict[str, Any] = {"messages": messages, **adjusted}
+        else:
+            # cognitiveservices.azure.com/openai/v1 style: flat /chat/completions
+            url = f"{base_url}/chat/completions"
+            body = {"model": model, "messages": messages, **extra}
+        params = {"api-version": api_version}
+    else:
+        url = f"{base_url}/chat/completions"
+        params = {}
+        body = {"model": model, "messages": messages, **extra}
 
     resp = httpx.post(
-        f"{base_url}/chat/completions",
+        url,
         params=params,
         headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-        json={"model": model, "messages": messages, **extra},
+        json=body,
         timeout=timeout,
     )
+    # Some reasoning models (gpt-5.3-chat) reject temperature != default — retry without it
+    if resp.status_code == 400 and b'"temperature"' in resp.content and "temperature" in body:
+        body_no_temp = {k: v for k, v in body.items() if k != "temperature"}
+        resp = httpx.post(
+            url,
+            params=params,
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json=body_no_temp,
+            timeout=timeout,
+        )
     if resp.status_code in _RETRYABLE:
         raise _QuotaError(f"{provider}:{model} → HTTP {resp.status_code}")
     resp.raise_for_status()
@@ -112,14 +140,30 @@ def stream_chat(
         base_url, api_key = provider_credentials(provider)
         if not api_key:
             continue
-        params = {"api-version": _azure_api_version()} if provider == "azure" else {}
+        if provider == "azure":
+            acfg = _azure_cfg()
+            api_version = acfg.get("api_version", "2025-01-01-preview")
+            if acfg.get("deployments_in_path"):
+                stream_url = f"{base_url}/openai/deployments/{mid}/chat/completions"
+                adjusted_extra = dict(extra)
+                if "max_tokens" in adjusted_extra:
+                    adjusted_extra["max_completion_tokens"] = adjusted_extra.pop("max_tokens")
+                stream_body: dict[str, Any] = {"messages": messages, **adjusted_extra}
+            else:
+                stream_url = f"{base_url}/chat/completions"
+                stream_body = {"model": mid, "messages": messages, **extra}
+            params = {"api-version": api_version}
+        else:
+            stream_url = f"{base_url}/chat/completions"
+            params = {}
+            stream_body = {"model": mid, "messages": messages, **extra}
         try:
             with httpx.stream(
                 "POST",
-                f"{base_url}/chat/completions",
+                stream_url,
                 params=params,
                 headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                json={"model": mid, "messages": messages, **extra},
+                json=stream_body,
                 timeout=timeout,
             ) as resp:
                 if resp.status_code in _RETRYABLE:
