@@ -1,8 +1,4 @@
-# Task → provider:model priority lists.
-# No credentials here — safe to commit.
-# Credentials come from /root/.env via KICONNECT_API_KEY / AZURE_OPENAI_API_KEY.
-# Updated weekly by scripts/refresh_routing.py (Mon 06:30 UTC).
-
+# Auto-updated 2026-06-15T06:31:07+00:00
 providers:
   kiconnect:
     base_url: https://chat.kiconnect.nrw/api/v1
@@ -10,55 +6,44 @@ providers:
   azure:
     base_url_env: AZURE_OPENAI_BASE_URL
     api_key_env: AZURE_OPENAI_API_KEY
-    api_version: "2025-04-01-preview"
-    deployments_in_path: true   # openai.azure.com uses /openai/deployments/{model}/chat/completions
-
-# First entry = preferred; fallback in order on 429/503.
-# Strategy: always try KIconnect first; Azure is the fallback when KIconnect is rate-limited.
+    api_version: 2025-04-01-preview
+    deployments_in_path: true
 task_routing:
   cold_email:
-    - kiconnect:gpt-oss-120b
-    - kiconnect:gpt-5.2
-    - azure:gpt-5.4
-    - azure:gpt-5.3-chat
+  - kiconnect:gpt-oss-120b
+  - kiconnect:gpt-5.2
+  - azure:gpt-4o
   blog:
-    - kiconnect:gpt-oss-120b
-    - kiconnect:gpt-5.2
-    - azure:gpt-5.4
-    - azure:gpt-5.3-chat
-  code:
-    - kiconnect:gpt-5.2
-    - kiconnect:gpt-oss-120b
-    - azure:gpt-5.4
-  summarize:
-    - kiconnect:mistral-small-4-119b-2603
-    - kiconnect:gpt-5.4-mini
-    - azure:gpt-5.4-mini
-  classify:
-    - kiconnect:gpt-5.4-mini
-    - kiconnect:mistral-small-4-119b-2603
-    - azure:gpt-5.4-mini
-  job_score:
-    - kiconnect:gpt-5.4-mini
-    - kiconnect:mistral-small-4-119b-2603
-    - azure:gpt-5.4-mini
+  - kiconnect:gpt-oss-120b
+  - kiconnect:gpt-5.2
+  - azure:gpt-4o
   cv_tailor:
-    - kiconnect:gpt-oss-120b
-    - kiconnect:gpt-5.2
-    - azure:gpt-5.4
-    - azure:gpt-5.3-chat
+  - kiconnect:gpt-oss-120b
+  - kiconnect:gpt-5.2
+  - azure:gpt-4o
+  code:
+  - kiconnect:gpt-oss-120b
+  - azure:gpt-4o
+  - kiconnect:gpt-5.2
+  - kiconnect:gpt-5.4-mini
+  - kiconnect:mistral-small-4-119b-2603
+  summarize:
+  - kiconnect:gpt-5.4-mini
+  - kiconnect:mistral-small-4-119b-2603
+  - kiconnect:gpt-oss-120b
+  - kiconnect:gpt-5.2
+  classify:
+  - kiconnect:gpt-5.4-mini
+  - kiconnect:mistral-small-4-119b-2603
   default:
-    - kiconnect:gpt-oss-120b
-    - kiconnect:gpt-5.2
-    - azure:gpt-5.4
-    - kiconnect:mistral-small-4-119b-2603
-    - azure:gpt-5.4-mini
-
+  - kiconnect:gpt-oss-120b
+  - kiconnect:gpt-5.2
+  - kiconnect:gpt-5.4-mini
+  - kiconnect:mistral-small-4-119b-2603
+  - azure:gpt-4o
 model_ranks:
   kiconnect:gpt-oss-120b: 100
   kiconnect:gpt-5.2: 90
-  azure:gpt-5.4: 85
-  azure:gpt-5.3-chat: 80
   kiconnect:gpt-5.4-mini: 70
   kiconnect:mistral-small-4-119b-2603: 60
-  azure:gpt-5.4-mini: 55
+  azure:gpt-4o: 85
