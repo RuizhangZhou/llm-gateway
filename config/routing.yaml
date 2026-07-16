@@ -1,4 +1,4 @@
-# Auto-updated 2026-06-15T06:31:07+00:00
+# Auto-updated 2026-07-13T06:31:08+00:00
 providers:
   kiconnect:
     base_url: https://chat.kiconnect.nrw/api/v1
@@ -11,39 +11,39 @@ providers:
 task_routing:
   cold_email:
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.2
+  - kiconnect:gpt-5.4-mini
   - azure:gpt-4o
   blog:
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.2
+  - kiconnect:gpt-5.4-mini
   - azure:gpt-4o
   cv_tailor:
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.2
+  - kiconnect:gpt-5.4-mini
   - azure:gpt-4o
   code:
   - kiconnect:gpt-oss-120b
   - azure:gpt-4o
-  - kiconnect:gpt-5.2
   - kiconnect:gpt-5.4-mini
   - kiconnect:mistral-small-4-119b-2603
+  - kiconnect:gpt-5.5
   summarize:
   - kiconnect:gpt-5.4-mini
   - kiconnect:mistral-small-4-119b-2603
+  - kiconnect:gpt-5.5
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.2
   classify:
   - kiconnect:gpt-5.4-mini
   - kiconnect:mistral-small-4-119b-2603
   default:
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.2
   - kiconnect:gpt-5.4-mini
   - kiconnect:mistral-small-4-119b-2603
+  - kiconnect:gpt-5.5
   - azure:gpt-4o
 model_ranks:
   kiconnect:gpt-oss-120b: 100
-  kiconnect:gpt-5.2: 90
   kiconnect:gpt-5.4-mini: 70
   kiconnect:mistral-small-4-119b-2603: 60
+  kiconnect:gpt-5.5: 50
   azure:gpt-4o: 85
