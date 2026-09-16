@@ -1,4 +1,4 @@
-# Auto-updated 2026-07-13T06:31:08+00:00
+# Auto-updated 2026-09-14T06:31:44+00:00
 providers:
   kiconnect:
     base_url: https://chat.kiconnect.nrw/api/v1
@@ -26,10 +26,12 @@ task_routing:
   - azure:gpt-4o
   - kiconnect:gpt-5.4-mini
   - kiconnect:mistral-small-4-119b-2603
+  - kiconnect:qwen3.8-27b
   - kiconnect:gpt-5.5
   summarize:
   - kiconnect:gpt-5.4-mini
   - kiconnect:mistral-small-4-119b-2603
+  - kiconnect:qwen3.8-27b
   - kiconnect:gpt-5.5
   - kiconnect:gpt-oss-120b
   classify:
@@ -39,11 +41,13 @@ task_routing:
   - kiconnect:gpt-oss-120b
   - kiconnect:gpt-5.4-mini
   - kiconnect:mistral-small-4-119b-2603
+  - kiconnect:qwen3.8-27b
   - kiconnect:gpt-5.5
   - azure:gpt-4o
 model_ranks:
   kiconnect:gpt-oss-120b: 100
   kiconnect:gpt-5.4-mini: 70
   kiconnect:mistral-small-4-119b-2603: 60
+  kiconnect:qwen3.8-27b: 50
   kiconnect:gpt-5.5: 50
   azure:gpt-4o: 85
