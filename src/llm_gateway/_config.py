@@ -16,6 +16,7 @@ _ROUTING_YAML = next((p for p in _ROUTING_YAML_CANDIDATES if p.exists()), _ROUTI
 _GLOBAL_ENV = Path("/root/.env")
 
 _config: dict[str, Any] | None = None
+_config_mtime_ns: int | None = None
 
 
 def _load_env() -> None:
@@ -33,11 +34,15 @@ def _load_env() -> None:
 
 
 def get_config() -> dict[str, Any]:
-    global _config
-    if _config is not None:
+    global _config, _config_mtime_ns
+    mtime_ns = _ROUTING_YAML.stat().st_mtime_ns
+    if _config is not None and _config_mtime_ns == mtime_ns:
         return _config
     _load_env()
     _config = yaml.safe_load(_ROUTING_YAML.read_text(encoding="utf-8"))
+    if not isinstance(_config, dict):
+        raise ValueError(f"Invalid routing config: {_ROUTING_YAML}")
+    _config_mtime_ns = mtime_ns
     return _config
 
 

@@ -1,10 +1,10 @@
-"""llm-gateway: server-wide LLM routing with task-based model selection and 429 fallback.
+"""Server-wide, task-aware LLM routing with automatic fallback.
 
 Usage::
 
     from llm_gateway import chat
 
-    # Task-based routing: cold_email → gpt-oss-120b → gpt-5.2 → azure:gpt-4o
+    # Cheap tasks use free models first; forecast/technical tasks use frontier first.
     resp = chat(messages=[{"role": "user", "content": "..."}], task="cold_email")
     print(resp["choices"][0]["message"]["content"])
 
