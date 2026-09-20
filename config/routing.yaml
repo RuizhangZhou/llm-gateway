@@ -138,7 +138,7 @@ model_ranks:
   kiconnect:gpt-5.5: 95
   azure:gpt-5.4: 94
 metadata:
-  refreshed_at: '2026-09-19T10:25:21+00:00'
+  refreshed_at: '2026-09-20T15:19:04+00:00'
   source: https://chat.kiconnect.nrw/api/v1/models
   policy: family rules in scripts/refresh_routing.py
 model_catalog:
