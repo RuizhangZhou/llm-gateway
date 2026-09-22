@@ -84,9 +84,29 @@ class RoutingPolicyTests(unittest.TestCase):
         config = {"task_routing": refresh.build_task_routing(self.models)}
         repository, environment = refresh.github_variable_plan(config, self.models)
         self.assertIn("qwen3.8-27b", repository["KICONNECT_CHAT_MODELS"])
-        self.assertEqual(environment["KICONNECT_CHEAP_MODEL"], "qwen3.8-27b")
+        # Actions credentials cannot call qwen3.8-27b; it is only skipped there.
+        self.assertEqual(environment["KICONNECT_CHEAP_MODEL"], "mistral-small-4-119b-2603")
         self.assertEqual(environment["KICONNECT_FORECAST_MODEL"], "gpt-5.5")
         self.assertTrue(environment["KICONNECT_FORECAST_MODEL_FALLBACKS"].startswith("gpt-oss-120b"))
+        self.assertNotIn("qwen3.8-27b", ",".join(environment.values()))
+
+    def test_github_plan_skips_models_rejecting_the_chain_effort(self) -> None:
+        def efforts(*supported: str) -> dict:
+            return {"reasoning_effort": {"supported": list(supported)}}
+
+        config = {
+            "task_routing": refresh.build_task_routing(self.models),
+            "model_catalog": {
+                "kiconnect:mistral-small-4-119b-2603": efforts("none", "high"),
+                "kiconnect:gpt-oss-120b": efforts("low", "medium", "high"),
+                "kiconnect:gpt-5.4-mini": efforts("none", "low", "high"),
+                "kiconnect:gpt-5.5": efforts("none", "low", "high", "xhigh"),
+            },
+        }
+        _, environment = refresh.github_variable_plan(config, self.models)
+        self.assertEqual(environment["KICONNECT_CHEAP_MODEL"], "gpt-oss-120b")
+        self.assertNotIn("mistral", environment["KICONNECT_CHEAP_MODEL_FALLBACKS"])
+        self.assertIn("mistral-small-4-119b-2603", environment["KICONNECT_FORECAST_MODEL_FALLBACKS"])
 
 
 class FallbackTests(unittest.TestCase):

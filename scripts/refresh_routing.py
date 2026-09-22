@@ -32,6 +32,16 @@ KICONNECT_BASE_URL = "https://chat.kiconnect.nrw/api/v1"
 ENV_FILE = Path(os.getenv("LLM_GATEWAY_ENV_FILE", "/root/.env"))
 GITHUB_REPO = os.getenv("LLM_GATEWAY_GITHUB_REPO", "RuizhangZhou/metaculus-bot")
 GITHUB_ENVIRONMENT = os.getenv("LLM_GATEWAY_GITHUB_ENVIRONMENT", "metaculus bot")
+# Listed by /models and callable with this server's key, but the Actions
+# credentials get model_not_found for them (qwen3.8-27b since 2026-09-21).
+GITHUB_EXCLUDED_MODELS = {
+    model.strip()
+    for model in os.getenv("LLM_GATEWAY_GITHUB_EXCLUDED_MODELS", "qwen3.8-27b").split(",")
+    if model.strip()
+}
+# The bot sends one reasoning effort to a whole chain, fallbacks included.
+GITHUB_CHEAP_REASONING_EFFORT = "low"
+GITHUB_FORECAST_REASONING_EFFORT = "high"
 
 EMBEDDING_HINTS = {"embedding", "e5-"}
 
@@ -278,11 +288,28 @@ def _without_provider(entries: list[str], provider: str = "kiconnect") -> list[s
     return [entry.removeprefix(prefix) for entry in entries if entry.startswith(prefix)]
 
 
+def _actions_chain(config: dict[str, Any], route: str, effort: str) -> list[str]:
+    """KIconnect models on a route that Actions can call with the given effort.
+
+    A model rejecting the effort answers 400, which the bot does not fall back
+    from. Models without a probe record are kept rather than silently dropped.
+    """
+    catalog = config.get("model_catalog", {})
+    chain = []
+    for model in _without_provider(config["task_routing"][route]):
+        if model in GITHUB_EXCLUDED_MODELS:
+            continue
+        supported = catalog.get(f"kiconnect:{model}", {}).get("reasoning_effort", {}).get("supported")
+        if supported is not None and effort not in supported:
+            continue
+        chain.append(model)
+    return chain
+
+
 def github_variable_plan(config: dict[str, Any], model_ids: list[str]) -> tuple[dict[str, str], dict[str, str]]:
     """Return (repository variables, environment variables) for Metaculus Actions."""
-    routes = config["task_routing"]
-    forecast = _without_provider(routes["forecast"])
-    cheap = _without_provider(routes["agent_step"])
+    forecast = _actions_chain(config, "forecast", GITHUB_FORECAST_REASONING_EFFORT)
+    cheap = _actions_chain(config, "agent_step", GITHUB_CHEAP_REASONING_EFFORT)
     if not forecast or not cheap:
         raise ValueError("Cannot sync GitHub variables without forecast and cheap KIconnect routes")
     repository = {"KICONNECT_CHAT_MODELS": ",".join(model_ids)}
@@ -296,8 +323,8 @@ def github_variable_plan(config: dict[str, Any], model_ids: list[str]) -> tuple[
         "KICONNECT_HIGH_MODEL": forecast[0],
         "KICONNECT_HIGH_MODEL_FALLBACKS": ",".join(forecast[1:]),
         "BOT_ENABLE_REASONING": "true",
-        "BOT_CHEAP_REASONING_EFFORT": "low",
-        "BOT_FORECAST_REASONING_EFFORT": "high",
+        "BOT_CHEAP_REASONING_EFFORT": GITHUB_CHEAP_REASONING_EFFORT,
+        "BOT_FORECAST_REASONING_EFFORT": GITHUB_FORECAST_REASONING_EFFORT,
     }
     return repository, environment
 
