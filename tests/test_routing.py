@@ -84,10 +84,16 @@ class RoutingPolicyTests(unittest.TestCase):
         config = {"task_routing": refresh.build_task_routing(self.models)}
         repository, environment = refresh.github_variable_plan(config, self.models)
         self.assertIn("qwen3.8-27b", repository["KICONNECT_CHAT_MODELS"])
-        # Actions credentials cannot call qwen3.8-27b; it is only skipped there.
-        self.assertEqual(environment["KICONNECT_CHEAP_MODEL"], "mistral-small-4-119b-2603")
+        self.assertEqual(environment["KICONNECT_CHEAP_MODEL"], "qwen3.8-27b")
         self.assertEqual(environment["KICONNECT_FORECAST_MODEL"], "gpt-5.5")
         self.assertTrue(environment["KICONNECT_FORECAST_MODEL_FALLBACKS"].startswith("gpt-oss-120b"))
+
+    def test_github_plan_skips_excluded_models(self) -> None:
+        config = {"task_routing": refresh.build_task_routing(self.models)}
+        with patch.object(refresh, "GITHUB_EXCLUDED_MODELS", {"qwen3.8-27b"}):
+            repository, environment = refresh.github_variable_plan(config, self.models)
+        self.assertIn("qwen3.8-27b", repository["KICONNECT_CHAT_MODELS"])
+        self.assertEqual(environment["KICONNECT_CHEAP_MODEL"], "mistral-small-4-119b-2603")
         self.assertNotIn("qwen3.8-27b", ",".join(environment.values()))
 
     def test_github_plan_skips_models_rejecting_the_chain_effort(self) -> None:
@@ -98,15 +104,19 @@ class RoutingPolicyTests(unittest.TestCase):
             "task_routing": refresh.build_task_routing(self.models),
             "model_catalog": {
                 "kiconnect:mistral-small-4-119b-2603": efforts("none", "high"),
+                "kiconnect:qwen3.8-27b": efforts("none", "low", "medium", "xhigh"),
                 "kiconnect:gpt-oss-120b": efforts("low", "medium", "high"),
                 "kiconnect:gpt-5.4-mini": efforts("none", "low", "high"),
                 "kiconnect:gpt-5.5": efforts("none", "low", "high", "xhigh"),
             },
         }
         _, environment = refresh.github_variable_plan(config, self.models)
-        self.assertEqual(environment["KICONNECT_CHEAP_MODEL"], "gpt-oss-120b")
+        self.assertEqual(environment["KICONNECT_CHEAP_MODEL"], "qwen3.8-27b")
+        self.assertTrue(environment["KICONNECT_CHEAP_MODEL_FALLBACKS"].startswith("gpt-oss-120b"))
         self.assertNotIn("mistral", environment["KICONNECT_CHEAP_MODEL_FALLBACKS"])
+        # The forecast chain runs at "high", which qwen rejects.
         self.assertIn("mistral-small-4-119b-2603", environment["KICONNECT_FORECAST_MODEL_FALLBACKS"])
+        self.assertNotIn("qwen3.8-27b", environment["KICONNECT_FORECAST_MODEL_FALLBACKS"])
 
 
 class FallbackTests(unittest.TestCase):

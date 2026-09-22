@@ -32,11 +32,11 @@ KICONNECT_BASE_URL = "https://chat.kiconnect.nrw/api/v1"
 ENV_FILE = Path(os.getenv("LLM_GATEWAY_ENV_FILE", "/root/.env"))
 GITHUB_REPO = os.getenv("LLM_GATEWAY_GITHUB_REPO", "RuizhangZhou/metaculus-bot")
 GITHUB_ENVIRONMENT = os.getenv("LLM_GATEWAY_GITHUB_ENVIRONMENT", "metaculus bot")
-# Listed by /models and callable with this server's key, but the Actions
-# credentials get model_not_found for them (qwen3.8-27b since 2026-09-21).
+# Models to keep out of the Actions variables while KIconnect answers
+# model_not_found for them there (qwen3.8-27b did 2026-09-21..22, then recovered).
 GITHUB_EXCLUDED_MODELS = {
     model.strip()
-    for model in os.getenv("LLM_GATEWAY_GITHUB_EXCLUDED_MODELS", "qwen3.8-27b").split(",")
+    for model in os.getenv("LLM_GATEWAY_GITHUB_EXCLUDED_MODELS", "").split(",")
     if model.strip()
 }
 # The bot sends one reasoning effort to a whole chain, fallbacks included.
