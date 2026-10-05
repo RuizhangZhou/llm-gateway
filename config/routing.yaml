@@ -12,106 +12,121 @@ task_routing:
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:qwen3.8-27b
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   blog:
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:qwen3.8-27b
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   summarize:
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:qwen3.8-27b
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   youtube_digest:
   - kiconnect:qwen3.8-27b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   classify:
   - kiconnect:qwen3.8-27b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   job_score:
   - kiconnect:qwen3.8-27b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   cold_email:
   - kiconnect:qwen3.8-27b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   cv_tailor:
   - kiconnect:qwen3.8-27b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   agent_step:
   - kiconnect:qwen3.8-27b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   forecast:
-  - kiconnect:gpt-5.5
   - kiconnect:gpt-oss-120b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:qwen3.8-27b
-  - kiconnect:gpt-5.4-mini
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   technical:
-  - kiconnect:gpt-5.5
   - kiconnect:gpt-oss-120b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:qwen3.8-27b
-  - kiconnect:gpt-5.4-mini
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   code:
-  - kiconnect:gpt-5.5
   - kiconnect:gpt-oss-120b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:qwen3.8-27b
-  - kiconnect:gpt-5.4-mini
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   agent_complex:
-  - kiconnect:gpt-5.5
   - kiconnect:gpt-oss-120b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:qwen3.8-27b
-  - kiconnect:gpt-5.4-mini
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   instant:
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:qwen3.8-27b
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
   default:
   - kiconnect:qwen3.8-27b
   - kiconnect:mistral-small-4-119b-2603
   - kiconnect:gpt-oss-120b
-  - kiconnect:gpt-5.4-mini
-  - kiconnect:gpt-5.5
+  - kiconnect:gpt-6-astra
+  - kiconnect:gpt-6-sol
+  - kiconnect:gpt-6-luna
   - azure:gpt-5.4
 reasoning_effort_policy:
   task_targets:
@@ -134,13 +149,15 @@ model_ranks:
   kiconnect:mistral-small-4-119b-2603: 80
   kiconnect:qwen3.8-27b: 82
   kiconnect:gpt-oss-120b: 78
-  kiconnect:gpt-5.4-mini: 89
-  kiconnect:gpt-5.5: 95
+  kiconnect:gpt-6-astra: 10
+  kiconnect:gpt-6-sol: 10
+  kiconnect:gpt-6-luna: 10
   azure:gpt-5.4: 94
 metadata:
-  refreshed_at: '2026-09-20T15:19:04+00:00'
+  refreshed_at: '2026-10-05T15:17:27+00:00'
   source: https://chat.kiconnect.nrw/api/v1/models
   policy: family rules in scripts/refresh_routing.py
+  reasoning_effort_probed_at: '2026-10-05T15:17:27+00:00'
 model_catalog:
   kiconnect:mistral-small-4-119b-2603:
     tier: free
@@ -215,60 +232,40 @@ model_catalog:
       probed_at: '2026-09-19T07:55:49+00:00'
       source: live_http_probe
       request_limit_tokens: 32
-  kiconnect:gpt-5.4-mini:
-    tier: limited
-    rank: 89
-    capabilities:
-    - reasoning
-    - technical
-    - forecast
-    - writing
-    - structured
-    family: gpt-frontier
+  kiconnect:gpt-6-astra:
+    tier: unknown
+    rank: 10
+    capabilities: []
+    family: unknown
     available: true
     reasoning_effort:
-      supported:
-      - none
-      - minimal
-      - low
-      - medium
-      - high
-      - xhigh
-      task_target_map:
-        none: none
-        minimal: minimal
-        low: low
-        medium: medium
-        high: high
-        xhigh: xhigh
-      probed_at: '2026-09-19T07:55:49+00:00'
+      supported: []
+      task_target_map: {}
+      probed_at: '2026-10-05T15:17:27+00:00'
       source: live_http_probe
       request_limit_tokens: 32
-  kiconnect:gpt-5.5:
-    tier: limited
-    rank: 95
-    capabilities:
-    - reasoning
-    - technical
-    - forecast
-    - writing
-    - structured
-    family: gpt-frontier
+  kiconnect:gpt-6-sol:
+    tier: unknown
+    rank: 10
+    capabilities: []
+    family: unknown
     available: true
     reasoning_effort:
-      supported:
-      - none
-      - low
-      - medium
-      - high
-      - xhigh
-      task_target_map:
-        none: none
-        low: low
-        medium: medium
-        high: high
-        xhigh: xhigh
-      probed_at: '2026-09-19T07:55:49+00:00'
+      supported: []
+      task_target_map: {}
+      probed_at: '2026-10-05T15:17:27+00:00'
+      source: live_http_probe
+      request_limit_tokens: 32
+  kiconnect:gpt-6-luna:
+    tier: unknown
+    rank: 10
+    capabilities: []
+    family: unknown
+    available: true
+    reasoning_effort:
+      supported: []
+      task_target_map: {}
+      probed_at: '2026-10-05T15:17:27+00:00'
       source: live_http_probe
       request_limit_tokens: 32
   azure:gpt-5.4:
