@@ -11,9 +11,27 @@ response = chat(messages, task="job_score")
 
 `config/routing.yaml` is generated from KIconnect's live `/models` endpoint.
 The refresh job runs every six hours and keeps the previous file if discovery
-fails or returns no text models. Writes are atomic, and long-running Python
-processes reload the file after it changes. The systemd job also synchronizes
-the model-only GitHub Actions variables used by `RuizhangZhou/metaculus-bot`.
+fails or returns no text models. It commits and pushes the config only when
+model or routing data changes; timestamp-only refreshes leave the file alone.
+The systemd job also synchronizes the model-only GitHub Actions variables used
+by `RuizhangZhou/metaculus-bot`.
+
+By default, gateway clients check
+`RuizhangZhou/llm-gateway`'s `master/config/routing.yaml` on startup and every
+five minutes. The last successfully fetched file is cached under
+`~/.cache/llm-gateway/routing.yaml`; if GitHub is unreachable, clients continue
+with that cache or the checked-out/package config on a fresh machine. Set
+`LLM_GATEWAY_CONFIG_REPO`, `LLM_GATEWAY_CONFIG_REF`,
+`LLM_GATEWAY_CONFIG_PATH`, `LLM_GATEWAY_CONFIG_REFRESH_SECONDS`, or
+`LLM_GATEWAY_CONFIG_URL` to change the source or polling interval. For a private
+repository, provide a read-only GitHub token as `LLM_GATEWAY_GITHUB_TOKEN`
+(contents: read). Each runtime keeps provider credentials such as
+`KICONNECT_API_KEY` and `AZURE_OPENAI_API_KEY` in its own environment; these
+are never part of the shared routing file. The refresh host needs GitHub CLI
+authentication with contents: write access to this repository so it can push
+changed routing data. `LLM_GATEWAY_CONFIG_GIT_REMOTE` and
+`LLM_GATEWAY_CONFIG_GIT_BRANCH` select the push target (defaults: `origin` and
+`master`).
 
 ## Routing policy
 
@@ -40,6 +58,7 @@ output chunk, because switching afterward would splice two answers together.
 uv run python scripts/refresh_routing.py --dry-run
 uv run python scripts/refresh_routing.py
 uv run python scripts/refresh_routing.py --sync-github
+uv run python scripts/refresh_routing.py --publish-github
 systemctl status llm-gateway-refresh.timer
 ```
 

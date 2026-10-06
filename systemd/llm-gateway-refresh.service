@@ -6,7 +6,7 @@ After=network-online.target
 [Service]
 Type=oneshot
 WorkingDirectory=/root/llm-gateway
-ExecStart=/root/.local/bin/uv run python scripts/refresh_routing.py --sync-github --probe-new
+ExecStart=/root/.local/bin/uv run python scripts/refresh_routing.py --sync-github --probe-new --publish-github
 Environment=HOME=/root
 StandardOutput=append:/root/llm-gateway/logs/refresh.log
 StandardError=append:/root/llm-gateway/logs/refresh.log

@@ -32,6 +32,8 @@ KICONNECT_BASE_URL = "https://chat.kiconnect.nrw/api/v1"
 ENV_FILE = Path(os.getenv("LLM_GATEWAY_ENV_FILE", "/root/.env"))
 GITHUB_REPO = os.getenv("LLM_GATEWAY_GITHUB_REPO", "RuizhangZhou/metaculus-bot")
 GITHUB_ENVIRONMENT = os.getenv("LLM_GATEWAY_GITHUB_ENVIRONMENT", "metaculus bot")
+CONFIG_GIT_REMOTE = os.getenv("LLM_GATEWAY_CONFIG_GIT_REMOTE", "origin")
+CONFIG_GIT_BRANCH = os.getenv("LLM_GATEWAY_CONFIG_GIT_BRANCH", "master")
 # Models to keep out of the Actions variables while KIconnect answers
 # model_not_found for them there (qwen3.8-27b did 2026-09-21..22, then recovered).
 GITHUB_EXCLUDED_MODELS = {
@@ -249,6 +251,75 @@ def _render(config: dict[str, Any]) -> str:
     return yaml.safe_dump(config, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
 
+def _stable_config(config: dict[str, Any]) -> dict[str, Any]:
+    """Drop refresh timestamps so polling the same model list is a true no-op."""
+    stable = json.loads(json.dumps(config))
+    metadata = stable.get("metadata", {})
+    if isinstance(metadata, dict):
+        metadata.pop("refreshed_at", None)
+        metadata.pop("reasoning_effort_probed_at", None)
+    catalog = stable.get("model_catalog", {})
+    if isinstance(catalog, dict):
+        for entry in catalog.values():
+            if isinstance(entry, dict):
+                effort = entry.get("reasoning_effort", {})
+                if isinstance(effort, dict):
+                    effort.pop("probed_at", None)
+    return stable
+
+
+def _publish_routing_to_github() -> bool:
+    """Commit only routing.yaml and push it when its contents differ from HEAD."""
+    try:
+        relative_path = ROUTING_YAML.resolve().relative_to(PROJECT_ROOT.resolve())
+    except ValueError as exc:
+        raise RuntimeError("The published routing file must be inside the Git checkout") from exc
+    current = yaml.safe_load(ROUTING_YAML.read_text(encoding="utf-8")) or {}
+    committed = subprocess.run(
+        ["git", "show", f"HEAD:{relative_path}"],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    committed_config = None
+    if committed.returncode == 0:
+        try:
+            committed_config = yaml.safe_load(committed.stdout)
+        except yaml.YAMLError:
+            pass
+    if isinstance(committed_config, dict) and _stable_config(current) == _stable_config(committed_config):
+        print("GitHub publish skipped: no model or routing changes")
+        return False
+
+    branch = CONFIG_GIT_BRANCH
+    subprocess.run(
+        ["git", "add", "--", str(relative_path)], cwd=PROJECT_ROOT, check=True
+    )
+    subprocess.run(
+        [
+            "git",
+            "commit",
+            "--only",
+            "-m",
+            "chore: refresh shared model routing",
+            "--",
+            str(relative_path),
+        ],
+        cwd=PROJECT_ROOT,
+        check=True,
+    )
+    # `gh auth git-credential` lets the scheduled service use its existing
+    # GitHub CLI login without writing a token into a remote URL or git config.
+    push = ["git"]
+    if shutil.which("gh") is not None:
+        push.extend(["-c", "credential.helper=!gh auth git-credential"])
+    push.extend(["push", CONFIG_GIT_REMOTE, f"HEAD:refs/heads/{branch}"])
+    subprocess.run(push, cwd=PROJECT_ROOT, check=True, timeout=120)
+    print(f"Published config/routing.yaml to {CONFIG_GIT_REMOTE}/{branch}")
+    return True
+
+
 def models_missing_reasoning_probe(config: dict[str, Any], model_ids: list[str]) -> list[str]:
     """Return newly discovered models with no successful effort capability record."""
     catalog = config.get("model_catalog", {})
@@ -418,6 +489,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="live-probe reasoning effort only for newly discovered KI Connect models",
     )
+    parser.add_argument(
+        "--publish-github",
+        action="store_true",
+        help="commit and push changed routing.yaml to the configured GitHub branch",
+    )
     args = parser.parse_args(argv)
 
     _load_env()
@@ -431,6 +507,11 @@ def main(argv: list[str] | None = None) -> int:
         current = yaml.safe_load(ROUTING_YAML.read_text(encoding="utf-8")) or {}
         now = datetime.now(tz=timezone.utc).replace(microsecond=0).isoformat()
         config = build_config(current, model_ids, now)
+        changed = _stable_config(current) != _stable_config(config)
+        if not changed:
+            # Keep the last meaningful refresh time and avoid rewriting the
+            # file solely because the six-hour polling timestamp changed.
+            config = current
         rendered = _render(config)
         # Parse the exact bytes before replacing the last-known-good config.
         yaml.safe_load(rendered)
@@ -441,16 +522,26 @@ def main(argv: list[str] | None = None) -> int:
     if args.dry_run:
         print(rendered, end="")
     else:
-        _atomic_write(ROUTING_YAML, rendered)
-        print(f"Updated {ROUTING_YAML}")
-        print(f"KIconnect text models: {model_ids}")
+        if changed:
+            _atomic_write(ROUTING_YAML, rendered)
+            print(f"Updated {ROUTING_YAML}")
+            print(f"KIconnect text models: {model_ids}")
+        else:
+            print("Routing unchanged; leaving routing.yaml untouched")
         if args.probe_new:
             try:
                 probe_new_reasoning_efforts(models_missing_reasoning_probe(config, model_ids))
+                config = yaml.safe_load(ROUTING_YAML.read_text(encoding="utf-8")) or config
             except Exception as exc:
                 # Availability/routing refresh remains useful even if a new
                 # model's capability probe is temporarily unavailable.
                 print(f"WARNING probing reasoning effort: {exc}", file=sys.stderr)
+        if args.publish_github:
+            try:
+                _publish_routing_to_github()
+            except Exception as exc:
+                print(f"ERROR publishing routing to GitHub: {exc}", file=sys.stderr)
+                return 1
         if args.sync_github:
             try:
                 sync_github_variables(config, model_ids)

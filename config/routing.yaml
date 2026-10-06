@@ -157,7 +157,7 @@ metadata:
   refreshed_at: '2026-10-05T15:17:27+00:00'
   source: https://chat.kiconnect.nrw/api/v1/models
   policy: family rules in scripts/refresh_routing.py
-  reasoning_effort_probed_at: '2026-10-05T15:17:27+00:00'
+  reasoning_effort_probed_at: '2026-10-06T09:19:18+00:00'
 model_catalog:
   kiconnect:mistral-small-4-119b-2603:
     tier: free
@@ -241,7 +241,7 @@ model_catalog:
     reasoning_effort:
       supported: []
       task_target_map: {}
-      probed_at: '2026-10-05T15:17:27+00:00'
+      probed_at: '2026-10-06T09:19:18+00:00'
       source: live_http_probe
       request_limit_tokens: 32
   kiconnect:gpt-6-sol:
@@ -253,7 +253,7 @@ model_catalog:
     reasoning_effort:
       supported: []
       task_target_map: {}
-      probed_at: '2026-10-05T15:17:27+00:00'
+      probed_at: '2026-10-06T09:19:18+00:00'
       source: live_http_probe
       request_limit_tokens: 32
   kiconnect:gpt-6-luna:
@@ -265,7 +265,7 @@ model_catalog:
     reasoning_effort:
       supported: []
       task_target_map: {}
-      probed_at: '2026-10-05T15:17:27+00:00'
+      probed_at: '2026-10-06T09:19:18+00:00'
       source: live_http_probe
       request_limit_tokens: 32
   azure:gpt-5.4:
