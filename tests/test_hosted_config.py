@@ -5,10 +5,19 @@ import sys
 import unittest
 from unittest.mock import patch
 
+import yaml
+
 from llm_gateway import _config
 
 
 class HostedConfigTests(unittest.TestCase):
+    def test_ci_covers_default_branch_pushes_and_pull_requests(self):
+        path = Path(__file__).resolve().parents[1] / '.github/workflows/test.yml'
+        # BaseLoader preserves GitHub's "on" key (not YAML 1.1's boolean True).
+        workflow = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+        self.assertIn('master', workflow['on']['push']['branches'])
+        self.assertIn('pull_request', workflow['on'])
+
     def test_optional_server_path_permission_error_is_ignored(self):
         with patch.object(Path, 'is_file', side_effect=PermissionError('non-root')):
             self.assertFalse(_config._accessible_file(Path('/root/llm-gateway/config/routing.yaml')))

@@ -2,7 +2,7 @@ name: Gateway hosted compatibility tests
 on:
   pull_request:
   push:
-    branches: ['work/hosted-runner-compat']
+    branches: ['master']
 permissions:
   contents: read
 jobs:
