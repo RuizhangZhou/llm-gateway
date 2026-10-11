@@ -14,6 +14,15 @@ from urllib.parse import quote
 
 import yaml
 
+
+def _accessible_file(path: Path) -> bool:
+    try:
+        return path.is_file()
+    except OSError:
+        # Optional server paths are not traversable by GitHub hosted runners.
+        return False
+
+
 _ROUTING_YAML_CANDIDATES = [
     Path("/root/llm-gateway/config/routing.yaml"),
     Path(__file__).parent.parent.parent / "config" / "routing.yaml",
@@ -21,7 +30,7 @@ _ROUTING_YAML_CANDIDATES = [
 _ROUTING_YAML = Path(
     os.getenv(
         "LLM_GATEWAY_ROUTING_FILE",
-        str(next((p for p in _ROUTING_YAML_CANDIDATES if p.exists()), _ROUTING_YAML_CANDIDATES[0])),
+        str(next((p for p in _ROUTING_YAML_CANDIDATES if _accessible_file(p)), _ROUTING_YAML_CANDIDATES[-1])),
     )
 )
 _GLOBAL_ENV = Path(os.getenv("LLM_GATEWAY_ENV_FILE", "/root/.env"))
@@ -44,9 +53,12 @@ _logger = logging.getLogger("llm_gateway.config")
 
 
 def _load_env() -> None:
-    if not _GLOBAL_ENV.exists():
+    try:
+        content = _GLOBAL_ENV.read_text()
+    except (OSError, UnicodeError):
+        # Environment-injected Secrets remain authoritative on hosted runners.
         return
-    for line in _GLOBAL_ENV.read_text().splitlines():
+    for line in content.splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
